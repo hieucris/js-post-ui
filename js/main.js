@@ -45,12 +45,42 @@ function renderPostList(postList) {
     });
 }
 
+function handlePrevClick(e) {
+    e.preventDefault();
+    console.log('Prev');
+}
+
+function handleNextLink(e) {
+    e.preventDefault();
+    console.log('Next');
+}
+
+function initPagination() {
+    const ulPagination = document.getElementById('pagination');
+    if (!ulPagination) return;
+
+    const prevLink = ulPagination.firstElementChild.firstElementChild;
+    if (prevLink) prevLink.addEventListener('click', handlePrevClick);
+
+    const nextLink = ulPagination.lastElementChild.lastElementChild;
+    if (nextLink) nextLink.addEventListener('click', handleNextLink);
+}
+
+function initURL() {
+    const url = new URL(window.location);
+    if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1);
+    if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6);
+
+    history.pushState({}, '', url);
+}
+
 (async() => {
     try {
-        const queryParams = {
-            _page: 1,
-            _limit: 20,
-        };
+        initPagination();
+        initURL();
+
+        const queryParams = new URLSearchParams(window.location.search);
+        console.log(queryParams.toString());
         const { data, pagination } = await postApi.getAll(queryParams);
         renderPostList(data);
     } catch (error) {
