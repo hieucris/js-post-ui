@@ -45,6 +45,23 @@ function renderPostList(postList) {
     });
 }
 
+function renderPagination(pagination) {
+    const ulPagination = document.getElementById('pagination');
+    if (!pagination || !ulPagination) return;
+
+    const { _page, _limit, _totalRows } = pagination;
+    const totalPages = Math.ceil(_totalRows / _limit);
+
+    ulPagination.dataset.page = _page;
+    ulPagination.dataset.totalPages = totalPages;
+
+    if (_page <= 1) ulPagination.firstElementChild.classList.add('disabled');
+    else ulPagination.firstElementChild.classList.remove('disabled');
+
+    if (_page >= totalPages) ulPagination.lastElementChild.classList.add('disabled');
+    else ulPagination.lastElementChild.classList.remove('disabled');
+}
+
 function handlePrevClick(e) {
     e.preventDefault();
     console.log('Prev');
@@ -83,6 +100,7 @@ function initURL() {
         console.log(queryParams.toString());
         const { data, pagination } = await postApi.getAll(queryParams);
         renderPostList(data);
+        renderPagination(pagination);
     } catch (error) {
         console.log('getAll failed', error);
     }
