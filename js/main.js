@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import postApi from './api/postApi';
-import { setTextContent, truncateText } from './utils';
+import { getUlPagination, setTextContent, truncateText } from './utils';
 
 dayjs.extend(relativeTime);
 
@@ -39,6 +39,8 @@ function renderPostList(postList) {
     const ulElement = document.getElementById('postList');
     if (!ulElement) return;
 
+    ulElement.textContent = '';
+
     postList.forEach((post, idx) => {
         const liElement = createPostElement(post);
         ulElement.appendChild(liElement);
@@ -46,7 +48,7 @@ function renderPostList(postList) {
 }
 
 function renderPagination(pagination) {
-    const ulPagination = document.getElementById('pagination');
+    const ulPagination = getUlPagination();
     if (!pagination || !ulPagination) return;
 
     const { _page, _limit, _totalRows } = pagination;
@@ -62,32 +64,60 @@ function renderPagination(pagination) {
     else ulPagination.lastElementChild.classList.remove('disabled');
 }
 
+async function handleFilterChange(filterName, filterValue) {
+    try {
+        const url = new URL(window.location);
+        url.searchParams.set(filterName, filterValue);
+        history.pushState({}, '', url);
+        const { data, pagination } = await postApi.getAll(url.searchParams);
+        renderPostList(data);
+        renderPagination(pagination);
+    } catch (error) {
+        console.log('failed call post list', error);
+    }
+}
+
 function handlePrevClick(e) {
     e.preventDefault();
     console.log('Prev');
+
+    const ulPagination = getUlPagination();
+    if (!ulPagination) return;
+
+    const page = Number.parseInt(ulPagination.dataset.page);
+    if (page <= 1) return;
+    handleFilterChange('_page', page - 1);
 }
 
-function handleNextLink(e) {
+function handleNextClick(e) {
     e.preventDefault();
     console.log('Next');
+
+    const ulPagination = getUlPagination();
+    if (!ulPagination) return;
+
+    const page = Number.parseInt(ulPagination.dataset.page);
+    const totalPages = ulPagination.dataset.totalPages;
+    if (page >= totalPages) return;
+    handleFilterChange('_page', page + 1);
 }
 
 function initPagination() {
-    const ulPagination = document.getElementById('pagination');
+    const ulPagination = getUlPagination();
     if (!ulPagination) return;
 
     const prevLink = ulPagination.firstElementChild.firstElementChild;
     if (prevLink) prevLink.addEventListener('click', handlePrevClick);
 
     const nextLink = ulPagination.lastElementChild.lastElementChild;
-    if (nextLink) nextLink.addEventListener('click', handleNextLink);
+    if (nextLink) nextLink.addEventListener('click', handleNextClick);
 }
 
 function initURL() {
     const url = new URL(window.location);
-    if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1);
-    if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6);
 
+    if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6);
+    if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1);
     history.pushState({}, '', url);
 }
 
