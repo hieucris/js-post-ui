@@ -121,9 +121,19 @@ function initURL() {
     history.pushState({}, '', url);
 }
 
+function initSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (event) => {
+        console.log(event.target.value);
+    });
+}
+
 (async() => {
     try {
         initPagination();
+        initSearch();
         initURL();
 
         const queryParams = new URLSearchParams(window.location.search);
