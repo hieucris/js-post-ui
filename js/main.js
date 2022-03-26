@@ -10,7 +10,7 @@ async function handleFilterChange(filterName, filterValue) {
         history.pushState({}, '', url);
 
         const { data, pagination } = await postApi.getAll(url.searchParams);
-        renderPostList('postList', data);
+        renderPostList(data);
         renderPagination('pagination', pagination);
     } catch (error) {
         console.log('failed call post list', error);
@@ -40,7 +40,7 @@ async function handleFilterChange(filterName, filterValue) {
         });
 
         const { data, pagination } = await postApi.getAll(queryParams);
-        renderPostList('postList', data);
+        renderPostList(data);
         renderPagination('pagination', pagination);
     } catch (error) {
         console.log('getAll failed', error);

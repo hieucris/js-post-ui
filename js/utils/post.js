@@ -23,10 +23,10 @@ export function createPostElement(post) {
     return liElement;
 }
 
-export function renderPostList(elementId, postList) {
+export function renderPostList(postList) {
     if (!Array.isArray(postList)) return;
 
-    const ulElement = document.getElementById(elementId);
+    const ulElement = document.getElementById('postList');
     if (!ulElement) return;
 
     ulElement.textContent = '';
