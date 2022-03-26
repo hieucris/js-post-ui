@@ -39,6 +39,9 @@ async function handleFilterChange(filterName, filterValue) {
             onChange: (value) => handleFilterChange('title_like', value),
         });
 
+        initPagination(queryParams);
+        initSearch(queryParams);
+
         const { data, pagination } = await postApi.getAll(queryParams);
         renderPostList(data);
         renderPagination('pagination', pagination);
